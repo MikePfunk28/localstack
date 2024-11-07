@@ -1,7 +1,6 @@
 from rolo.gateway import CompositeHandler
 
 from .api_key_validation import ApiKeyValidationHandler
-from .cors import CorsResponseEnricher
 from .gateway_exception import GatewayExceptionHandler
 from .integration import IntegrationHandler
 from .integration_request import IntegrationRequestHandler
@@ -24,4 +23,3 @@ method_response_handler = MethodResponseHandler()
 gateway_exception_handler = GatewayExceptionHandler()
 api_key_validation_handler = ApiKeyValidationHandler()
 response_enricher = InvocationResponseEnricher()
-cors_response_enricher = CorsResponseEnricher()
