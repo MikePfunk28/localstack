@@ -1,8 +1,10 @@
 #
 # base: Stage which installs necessary runtime dependencies (OS packages, etc.)
 #
-FROM python:3.11.10-slim-bookworm@sha256:e8381c802593deb0c4d25bd3f4e05e94382f6bf33090de22679fc7488cd68bbb AS base
-ARG TARGETARCH
+FROM python:3.13-slim as base
+
+ARG LOCALSTACK_BUILD_VERSION
+ENV SETUPTOOLS_SCM_PRETEND_VERSION=$LOCALSTACK_BUILD_VERSION
 
 # Install runtime OS package dependencies
 RUN --mount=type=cache,target=/var/cache/apt \
@@ -185,3 +187,19 @@ ENV LOCALSTACK_BUILD_VERSION=${LOCALSTACK_BUILD_VERSION}
 
 # define command at startup
 ENTRYPOINT ["docker-entrypoint.sh"]
+
+# Define the build argument for the version
+ARG LOCALSTACK_BUILD_VERSION
+
+# Normalize the distribution name as per PEP 503 semantics
+# Replace this with your actual distribution name
+ENV DIST_NAME=localstack
+ENV NORMALIZED_DIST_NAME=$(echo ${DIST_NAME} | tr '[:lower:]' '[:upper:]' | sed 's/[-._]/_/g')
+
+# Set the environment variable for setuptools_scm
+ENV SETUPTOOLS_SCM_PRETEND_VERSION_FOR_${NORMALIZED_DIST_NAME}=${LOCALSTACK_BUILD_VERSION}
+
+# Proceed with the installation
+RUN --mount=type=cache,target=/root/.cache \
+    . .venv/bin/activate && \
+    pip install -e .[runtime]
